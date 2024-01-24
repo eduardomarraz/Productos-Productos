@@ -1,3 +1,6 @@
+using Microservicio_Productos.DbContexts;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -7,6 +10,14 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
+//Configuracion BD
+builder.Services.AddDbContext<ProductsDbContext>(configuracion =>
+configuracion.UseSqlServer(
+    // Herramienta que sirve para leer la configuracion _
+builder.Configuration[""]
+    )
+);
 
 var app = builder.Build();
 
