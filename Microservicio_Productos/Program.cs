@@ -15,7 +15,7 @@ builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddDbContext<ProductsDbContext>(configuracion =>
 configuracion.UseSqlServer(
     // Herramienta que sirve para leer la configuracion _
-builder.Configuration[""]
+builder.Configuration["ConnectionStrings:conversorCadena"]
     )
 );
 
