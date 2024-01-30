@@ -3,6 +3,9 @@ using Microservicio_Productos.DbContexts;
 using Microservicio_Productos.Dtos;
 using Microservicio_Productos.Models;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using System.Net.Http.Headers;
+using System.Text;
 
 namespace Microservicio_Productos.Controllers
 {
@@ -12,11 +15,25 @@ namespace Microservicio_Productos.Controllers
     {
         private readonly ProductsDbContext _productsDbContext;
         private readonly IMapper _mapper;
+        private static HttpClient _httpClient = new HttpClient();
 
         public ProductController(ProductsDbContext productsDbContext, IMapper mapper)
         {
             this._productsDbContext = productsDbContext;
             this._mapper = mapper;
+
+            if (_httpClient.BaseAddress == null)
+            {
+                _httpClient.BaseAddress = new Uri("https://proyectoapismarketing.azurewebsites.net");
+
+                //Espera máximo 30 segundos
+                _httpClient.Timeout = new TimeSpan(0, 0, 30);
+                //Para borrar cabeceras del Headers
+                _httpClient.DefaultRequestHeaders.Clear();
+                //Introducir cabecera para 
+                _httpClient.DefaultRequestHeaders.Accept.Add(
+                    new MediaTypeWithQualityHeaderValue("application/json"));
+            }
         }
 
         //api/products
@@ -45,9 +62,9 @@ namespace Microservicio_Productos.Controllers
 
         [HttpPost]
 
-        public IActionResult CreateProduct([FromBody]ProductCreatedDto productCreatedDto) 
+        public async Task<IActionResult> CreateProduct([FromBody]ProductCreatedDto productCreatedDto) 
         {
-        var product = new Product();
+            var product = new Product();
 
             _mapper.Map(productCreatedDto, product);
 
@@ -55,8 +72,37 @@ namespace Microservicio_Productos.Controllers
 
             var result = _productsDbContext.SaveChanges();
 
+            var dtomarketing = new marketingDto() { idProducto = product.ProductId };
+
+            await CrearProductoEnMarketing(dtomarketing);
+
             return Created("", productCreatedDto);
         
+        }
+
+        private async Task CrearProductoEnMarketing(marketingDto producto)
+        {
+            try
+            {
+                var respuesta = await _httpClient.PostAsync(
+                    "api/M_Producto",
+                    new StringContent(
+                             JsonConvert.SerializeObject(producto),
+                             Encoding.UTF8,
+                             "application/json"
+                          )
+                    );
+
+                respuesta.EnsureSuccessStatusCode();
+
+                var contenido = await respuesta.Content.ReadAsStringAsync();
+                var productoCreado = JsonConvert.DeserializeObject(contenido);
+                var headers = respuesta.Content.Headers;
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError(string.Empty, "Error: " + ex.Message);
+            }
         }
     }
 }
