@@ -11,6 +11,7 @@ namespace Microservicio_Productos.PerfilesAutoMapper
         {
             CreateMap<Product, marketingDto>();
             CreateMap<Product, ProductCreatedDto>();
+            CreateMap<ProductCreatedDto, Product>();
 
 
         }
