@@ -3,7 +3,7 @@
 public class AzServiceBusMessageBus: IMessageBus
 {
     private string connectionString =
-        "Endpoint=sb://serviciobusejemplo240129.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=sTmwADiiWbcH1e57ILymPq1EnqQu/6xea+ASbBWAoiI=";
+        "Endpoint=sb://misaservicebus.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=KEnbRG44lOLu+kUZkJpfhaNfyXvhkRZDS+ASbOSB7Ts=";
 
     public async Task PublicarMensaje(IntegrationBaseMessage message, string topicName)
     {

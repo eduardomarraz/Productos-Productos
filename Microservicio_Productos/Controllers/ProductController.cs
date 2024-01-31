@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using BusMensajes;
 using Microservicio_Productos.DbContexts;
 using Microservicio_Productos.Dtos;
 using Microservicio_Productos.Models;
@@ -15,13 +16,14 @@ namespace Microservicio_Productos.Controllers
     {
         private readonly ProductsDbContext _productsDbContext;
         private readonly IMapper _mapper;
+        private readonly IMessageBus iMessageBus;
         private static HttpClient _httpClient = new HttpClient();
 
-        public ProductController(ProductsDbContext productsDbContext, IMapper mapper)
+        public ProductController(ProductsDbContext productsDbContext, IMapper mapper, IMessageBus iMessageBus)
         {
             this._productsDbContext = productsDbContext;
             this._mapper = mapper;
-
+            this.iMessageBus = iMessageBus;
             if (_httpClient.BaseAddress == null)
             {
                 _httpClient.BaseAddress = new Uri("https://proyectoapismarketing.azurewebsites.net");
@@ -73,6 +75,13 @@ namespace Microservicio_Productos.Controllers
             var result = _productsDbContext.SaveChanges();
 
             var dtomarketing = new marketingDto() { idProducto = product.ProductId };
+
+            
+
+            var mensaje = new MensajeCreacion { ProductId = product.ProductId, Id = Guid.NewGuid(), CreationDateTime = DateTime.Now };
+
+            // Integració de mensajeria asincrona
+            await iMessageBus.PublicarMensaje(mensaje, "productocreado");
 
             await CrearProductoEnMarketing(dtomarketing);
 
