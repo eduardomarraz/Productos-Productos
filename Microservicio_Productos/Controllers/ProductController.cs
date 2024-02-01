@@ -89,7 +89,9 @@ namespace Microservicio_Productos.Controllers
 
             await CrearProductoEnMarketing(dtomarketing);
 
-            return Created("", productCreatedDto);
+           return Created("", productCreatedDto);
+
+            
         
         }
 
