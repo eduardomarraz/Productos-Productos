@@ -12,6 +12,8 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddTransient<IMessageBus, AzServiceBusMessageBus>();
+//Servicio necesario para recibir mensajes.
+//*builder.Services.AddSingleton<IAzServiceBusConsumer, AzServiceBusConsumer>();
 
 //Configuracion BD
 builder.Services.AddDbContext<ProductsDbContext>(configuracion =>
@@ -35,5 +37,7 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+
+//*app.UseAzServiceBusConsumer();
 
 app.Run();

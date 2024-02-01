@@ -5,6 +5,7 @@ using Microservicio_Productos.Dtos;
 using Microservicio_Productos.Models;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using System.Configuration;
 using System.Net.Http.Headers;
 using System.Text;
 
@@ -17,13 +18,15 @@ namespace Microservicio_Productos.Controllers
         private readonly ProductsDbContext _productsDbContext;
         private readonly IMapper _mapper;
         private readonly IMessageBus iMessageBus;
+        private readonly IConfiguration configuration;
         private static HttpClient _httpClient = new HttpClient();
 
-        public ProductController(ProductsDbContext productsDbContext, IMapper mapper, IMessageBus iMessageBus)
+        public ProductController(ProductsDbContext productsDbContext, IMapper mapper, IMessageBus iMessageBus, IConfiguration configuration)
         {
             this._productsDbContext = productsDbContext;
             this._mapper = mapper;
             this.iMessageBus = iMessageBus;
+            this.configuration = configuration;
             if (_httpClient.BaseAddress == null)
             {
                 _httpClient.BaseAddress = new Uri("https://proyectoapismarketing.azurewebsites.net");
@@ -80,8 +83,9 @@ namespace Microservicio_Productos.Controllers
 
             var mensaje = new MensajeCreacion { ProductId = product.ProductId, Id = Guid.NewGuid(), CreationDateTime = DateTime.Now };
 
+            var serviceBusConnectionString = configuration.GetValue<string>("ServiceBusConnectionString");
             // Integració de mensajeria asincrona
-            await iMessageBus.PublicarMensaje(mensaje, "productocreado");
+            await iMessageBus.PublicarMensaje(mensaje, "productocreado", serviceBusConnectionString);
 
             await CrearProductoEnMarketing(dtomarketing);
 
