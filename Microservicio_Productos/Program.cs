@@ -1,5 +1,7 @@
 using BusMensajes;
+using Extensions;
 using Microservicio_Productos.DbContexts;
+using Microservicio_Productos.Messaging;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,7 +15,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddTransient<IMessageBus, AzServiceBusMessageBus>();
 //Servicio necesario para recibir mensajes.
-//*builder.Services.AddSingleton<IAzServiceBusConsumer, AzServiceBusConsumer>();
+builder.Services.AddSingleton<IAzServiceBusConsumer, AzServiceBusConsumer>();
 
 //Configuracion BD
 builder.Services.AddDbContext<ProductsDbContext>(configuracion =>
@@ -47,6 +49,6 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-//*app.UseAzServiceBusConsumer();
+app.UseAzServiceBusConsumer();
 
 app.Run();

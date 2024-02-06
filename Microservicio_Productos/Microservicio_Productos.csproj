@@ -26,4 +26,8 @@
     <ProjectReference Include="..\BusMensajes\BusMensajes.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Mediador\Comandos\" />
+  </ItemGroup>
+
 </Project>
