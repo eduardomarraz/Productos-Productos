@@ -1,8 +1,11 @@
 using BusMensajes;
 using Extensions;
+using MediatR;
 using Microservicio_Productos.DbContexts;
 using Microservicio_Productos.Messaging;
+using Microservicio_Productos.Repositories;
 using Microsoft.EntityFrameworkCore;
+using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,7 +17,11 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddTransient<IMessageBus, AzServiceBusMessageBus>();
+
+// Configuración de MediatR
+builder.Services.AddMediatR(AppDomain.CurrentDomain.GetAssemblies());
 //Servicio necesario para recibir mensajes.
+
 builder.Services.AddSingleton<IAzServiceBusConsumer, AzServiceBusConsumer>();
 
 //Configuracion BD
@@ -31,7 +38,7 @@ sqlServerOptionsAction: sqlOptions =>
 }
     )
 );
-
+builder.Services.AddScoped<IProductRepository, ProductRepository>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

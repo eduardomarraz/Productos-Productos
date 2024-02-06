@@ -40,7 +40,7 @@ namespace Microservicio_Productos.Messaging
             
             var body = Encoding.UTF8.GetString(message.Body);//json from service bus
             ConsultaListaProductos consulta = new ConsultaListaProductos();
-            mediator.Send(consulta);
+            await mediator.Send(consulta);
 
         }
 
