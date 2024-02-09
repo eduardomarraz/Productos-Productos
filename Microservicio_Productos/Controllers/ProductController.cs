@@ -3,6 +3,7 @@ using BusMensajes;
 using Microservicio_Productos.DbContexts;
 using Microservicio_Productos.Dtos;
 using Microservicio_Productos.Models;
+using Microservicio_Productos.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.Configuration;
@@ -19,14 +20,16 @@ namespace Microservicio_Productos.Controllers
         private readonly IMapper _mapper;
         private readonly IMessageBus iMessageBus;
         private readonly IConfiguration configuration;
+        private readonly IProductRepository productRepository;
         private static HttpClient _httpClient = new HttpClient();
 
-        public ProductController(ProductsDbContext productsDbContext, IMapper mapper, IMessageBus iMessageBus, IConfiguration configuration)
+        public ProductController(ProductsDbContext productsDbContext, IMapper mapper, IMessageBus iMessageBus, IConfiguration configuration, IProductRepository productRepository)
         {
             this._productsDbContext = productsDbContext;
             this._mapper = mapper;
             this.iMessageBus = iMessageBus;
             this.configuration = configuration;
+            this.productRepository = productRepository;
             if (_httpClient.BaseAddress == null)
             {
                 _httpClient.BaseAddress = new Uri("https://proyectoapismarketing.azurewebsites.net");
@@ -45,24 +48,30 @@ namespace Microservicio_Productos.Controllers
         [HttpGet]
         public IActionResult GetProducts()
         {
-            var productDto = new List<ProductDto>();
-            var products = _productsDbContext.Products;
-            return Ok(_mapper.Map<IEnumerable<ProductDto>>(products));
+            //var productDto = new List<ProductDto>();
+            //var products = _productsDbContext.Products;
+            //return Ok(_mapper.Map<IEnumerable<ProductDto>>(products));
+
+            var products = productRepository.GetProducts();
+            return Ok(products);
         }
 
         
         [HttpGet("{guid}")]
         public IActionResult GetProductsId(Guid guid)
         {
-            var product = _productsDbContext.Products.FirstOrDefault(product => product.ProductId == guid);
+            // var product = _productsDbContext.Products.FirstOrDefault(product => product.ProductId == guid);
+
+            var product = productRepository.GetProductsId(guid);
 
             if (product == null)
             {
                 return NotFound();
             }
 
-            return Ok(_mapper.Map<IEnumerable<ProductDto>>(product));
- 
+            //return Ok(_mapper.Map<IEnumerable<ProductDto>>(product));
+            return Ok(product);
+
         }
 
         [HttpPost]
@@ -73,9 +82,11 @@ namespace Microservicio_Productos.Controllers
 
             _mapper.Map(productCreatedDto, product);
 
-            _productsDbContext.Products.Add(product);
+            //_productsDbContext.Products.Add(product);
+            productRepository.CreateProduct(product);
 
-            var result = _productsDbContext.SaveChanges();
+            //var result = _productsDbContext.SaveChanges();
+            productRepository.SaveChanges();
 
             var dtomarketing = new marketingDto() { idProducto = product.ProductId };
 

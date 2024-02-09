@@ -28,13 +28,10 @@ builder.Services.AddSingleton<IAzServiceBusConsumer, AzServiceBusConsumer>();
 builder.Services.AddDbContext<ProductsDbContext>(configuracion =>
 configuracion.UseSqlServer(
     // Herramienta que sirve para leer la configuracion _
-builder.Configuration.GetConnectionString("conversorCadena"),
+builder.Configuration.GetConnectionString("conexionAzure"),
 sqlServerOptionsAction: sqlOptions =>
 {
-    sqlOptions.EnableRetryOnFailure(
-        maxRetryCount: 5, // Número máximo de intentos
-        maxRetryDelay: TimeSpan.FromSeconds(30), // Tiempo de espera entre intentos
-        errorNumbersToAdd: null); // Puedes especificar números de error específicos aquí
+    sqlOptions.EnableRetryOnFailure(); // Puedes especificar números de error específicos aquí
 }
     )
 );
