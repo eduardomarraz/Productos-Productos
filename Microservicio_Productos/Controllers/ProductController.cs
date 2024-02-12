@@ -90,13 +90,17 @@ namespace Microservicio_Productos.Controllers
 
             var dtomarketing = new marketingDto() { idProducto = product.ProductId };
 
-            
+            var dtomarketing1 = new MensajeCreacion { ID_Producto = product.ProductId, Id = Guid.NewGuid(), CreationDateTime = DateTime.Now };
+
+
 
             var mensaje = new MensajeCreacion { ProductId = product.ProductId, Id = Guid.NewGuid(), CreationDateTime = DateTime.Now };
 
             var serviceBusConnectionString = configuration.GetValue<string>("ServiceBusConnectionString");
             // Integració de mensajeria asincrona
             await iMessageBus.PublicarMensaje(mensaje, "productocreado", serviceBusConnectionString);
+
+            await iMessageBus.PublicarMensaje(dtomarketing1, "productocreado", serviceBusConnectionString);
 
             await CrearProductoEnMarketing(dtomarketing);
 
